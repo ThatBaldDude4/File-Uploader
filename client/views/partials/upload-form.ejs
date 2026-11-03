@@ -1,0 +1,15 @@
+
+<form action="/uploadFile" method="POST" enctype="multipart/form-data">
+    <% if (locals.errors) { %>
+        <ul>
+            <% errors.forEach(({msg}) => { %>
+                <li><%= msg %></li>
+            <% }); %>
+        </ul>    
+    <% }; %>
+    <label>
+        UPLOAD
+        <input type="file" name="uploaded_file">
+    </label>
+    <button type="submit">Upload</button>
+</form>
