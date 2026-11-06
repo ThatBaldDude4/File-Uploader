@@ -19,6 +19,7 @@ model User {
     last_name String
     username String @unique
     hash String
+    folder Folder[]
 }
 
 model Folder {
@@ -26,6 +27,9 @@ model Folder {
     name String
     created_at DateTime @default(now()) @db.Timestamptz(6)
     files File[]
+    
+    user User @relation(fields: [user_id], references: [id])
+    user_id Int
 }
 
 model File {
