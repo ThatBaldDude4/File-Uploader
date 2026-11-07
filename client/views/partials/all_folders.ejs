@@ -1,0 +1,6 @@
+<% if (locals.folders) { %>
+    <% folders.forEach((folder) => { %>
+        <h3><%= folder.name %></h3>
+        <%- include('open-dialog-btn', {folderId: folder.id}) %>
+    <% }); %>   
+<% }; %>

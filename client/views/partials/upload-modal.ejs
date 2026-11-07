@@ -1,0 +1,21 @@
+<dialog class="file_dialog">
+    <form method="POST" enctype="multipart/form-data" action="/uploadFile">
+        <select name="folder_id" class="folder_select">
+            <option value="" name="null">SELECT</option>
+            <!-- Add folder options -->
+             <% if (locals.folders) { %>
+                <% folders.forEach((folder) => { %>
+                    <option value="<%= folder.id %>"><%= folder.name %></option>
+                <% }); %>   
+            <% }; %>
+        </select>
+
+        <label>
+            Upload
+            <input type="file" name="uploaded_file">
+        </label>
+
+        <button type="submit">Submit</button>
+    </form>
+    <button id="close-modal">Cancel</button>
+</dialog>
