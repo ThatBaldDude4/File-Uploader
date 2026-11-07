@@ -8,7 +8,8 @@ import {
     getLoginController,
     postLoginController,
     getLogoutController,
-    postUploadFileController
+    postUploadFileController,
+    postAddFolderController
 } from "../indexController/indexController.js";
 import isAuthenticated from "../utils/middlewear/isAuthenticated.js";
 
@@ -34,6 +35,8 @@ indexRouter.get("/home/file/:fileId", isAuthenticated, getFileController)
 indexRouter.get("/logout", getLogoutController)
 
 indexRouter.post("/uploadFile", isAuthenticated, postUploadFileController);
+
+indexRouter.post("/addFolder", isAuthenticated, postAddFolderController)
 
 export  {
     indexRouter

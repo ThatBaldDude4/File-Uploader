@@ -78,8 +78,19 @@ const fileValidation = [
         })
 ]
 
-const getHomeController = (req, res) => {
-    res.render("home", {user: req.user});
+const folderValidation = [
+    body("folder_name")
+        .isLength({min: 1, max: 255})
+        .withMessage("Name must be between 1 - 255 characters")
+]
+
+const getHomeController = async (req, res) => {
+    const folders = await prisma.folder.findMany({
+        where: {
+            user_id: req.user.id
+        }
+    })
+    res.render("home", {user: req.user, folders});
 };
 
 const getFolderController = (req, res) => {
@@ -123,7 +134,7 @@ const postSignupController = [
                 }
             });
 
-            res.render("home")
+            res.render("login-form")
         }catch(error) {
             console.error(error)
         }
@@ -186,6 +197,31 @@ const postUploadFileController = [
     }
 ]
 
+const postAddFolderController = [
+    folderValidation,
+
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.render("home", {
+                errors: errors.array()
+            });
+        }
+
+        try {
+            await prisma.folder.create({
+                data: {
+                    name: req.body.folder_name,
+                    user_id: req.user.id
+                }
+            })
+        }catch(err) {
+            console.error(err);
+        }
+        res.redirect("/home");
+    }
+]
+
 
 export {
     getHomeController,
@@ -196,5 +232,6 @@ export {
     getLoginController,
     postLoginController,
     getLogoutController,
-    postUploadFileController
+    postUploadFileController,
+    postAddFolderController
 }
