@@ -12,7 +12,17 @@
     <% if (locals.user) { %>
         <h1><%= user.username %></h1>    
     <% }; %>
-    
-    <%- include('partials/upload-form') %>
+
+    <div>
+        <p>Upload File</p>
+        <%- include('partials/open-dialog-btn', {folderId: ""}) %>
+    </div>
+    <%- include('partials/upload-modal') %>
+    <%- include('partials/add-folder-form') %>
+
+    <%- include('partials/all_folders') %>
+
+
+    <script src="/script.js" defer></script>
 </body>
 </html>
