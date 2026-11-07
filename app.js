@@ -14,6 +14,8 @@ const PORT = process.env.PORT || 8000;
 app.set("views", path.join(import.meta.dirname, "client/views"));
 app.set("view engine", "ejs");
 
+app.use(express.static(path.join(import.meta.dirname, "client")));
+
 // setup decoding
 app.use(express.urlencoded({ extended: true }));
 
@@ -30,7 +32,7 @@ app.use(
             checkPeriod: 2 * 60 * 1000,
             dbRecordIdIsSessionId: true
         })
-    })
+    }) 
 );
 
 // init passport into app
