@@ -32,12 +32,18 @@ app.use(
             checkPeriod: 2 * 60 * 1000,
             dbRecordIdIsSessionId: true
         })
-    }) 
+    })
 );
 
 // init passport into app
 app.use(passport.initialize());
 app.use(passport.session());
+
+// normalize user in response
+app.use((req, res, next) => {
+    res.locals.user = req.user;
+    next();
+})
 
 app.use("/", indexRouter)
 
