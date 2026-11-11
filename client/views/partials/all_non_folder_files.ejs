@@ -1,0 +1,10 @@
+<% if (locals.files) { %>
+    <% files.forEach((file) => { %>
+        <div class="file-container" data-file-id="<%= file.id ?? '' %>">
+            <h4 >File name: <%= file.name %></h4>
+            <p>Created at: <%= file.created_at %></p>
+            <p>Size: <%= file.sizeByte / 1000 %>Kb</p>
+            <button class="delete-file-btn">Delete File</button>
+        </div>
+    <% }) %>  
+<% }; %>

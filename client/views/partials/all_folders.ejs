@@ -1,6 +1,22 @@
 <% if (locals.folders) { %>
-    <% folders.forEach((folder) => { %>
-        <h3><%= folder.name %></h3>
-        <%- include('open-dialog-btn', {folderId: folder.id}) %>
-    <% }); %>   
+    <div class="folders">
+        <% folders.forEach((folder) => { %>
+            <div class="folder-container" data-folder-id="<%= folder.id ?? '' %>">
+                <h3 class="folder-name" ><%= folder.name %></h3>
+                <%- include('open-dialog-btn', {folderId: folder.id}) %>
+                <button class="delete-folder-btn">Delete</button>
+                
+                <% if (folder?.files) { %>
+                    <% folder.files.forEach((file) => { %>
+                        <div class="file-container" dataset-file-id="<%= file.id ?? '' %>">
+                            <h4 >File name: <%= file.name %></h4>
+                            <p>Created at: <%= file.created_at %></p>
+                            <p>Size: <%= file.sizeByte / 1000 %>Kb</p>
+                            <button class="delete-file-btn">Delete File</button>
+                        </div>
+                    <% }) %>   
+                <% }; %>
+            </div>
+        <% }); %>
+    </div>
 <% }; %>
