@@ -67,6 +67,7 @@ const fileValidation = [
             const fileExt = path.extname(req.file.originalname).toLowerCase();
             const maxSize = 8 * 1024 * 1024;
             if (!allowedExtensions.includes(fileExt)) {
+                console.log("invalid file type")
                 throw new Error("Invalid file type")
             }
 
@@ -85,12 +86,7 @@ const folderValidation = [
 ]
 
 const getHomeController = async (req, res) => {
-    const folders = await prisma.folder.findMany({
-        where: {
-            user_id: req.user.id
-        }
-    })
-    res.render("home", {user: req.user, folders});
+    res.render("home", {user: req.user});
 };
 
 const getFolderController = (req, res) => {
@@ -167,7 +163,7 @@ const postUploadFileController = [
     (req, res, next) => {
         upload.single("uploaded_file")(req, res, (err) => {
             if (err) {
-                // turn Multer error into your errors array
+                // turn Multer error into errors array
                 return res.render("home", {
                     errors: [{ msg: err.message}]
                 });
@@ -177,7 +173,7 @@ const postUploadFileController = [
         });
     },
     fileValidation,
-    async (req, res) => {
+    async (req, res, next) => {
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
@@ -192,6 +188,32 @@ const postUploadFileController = [
             return res.render("home", {
                 errors: errors.array()
             });
+        }
+
+        const folderId = req.body?.folder_id ?  Number(req.body.folder_id) : null;
+        const file = req.file;
+
+        if (folderId) {
+            const folder = await prisma.folder.findFirst({
+                where: {
+                    user_id: req.user.id,
+                    id: folderId
+                }
+            });
+            if (!folder) {next(new Error("You don't own this"))}
+        }
+        try {
+            const uploadedFile = await prisma.file.create({
+                data: {
+                    user_id: req.user.id,
+                    name: file.filename,
+                    sizeByte: file.size,
+                    folder_id: folderId
+                }
+            })
+            console.log(uploadedFile)
+        }catch(err) {
+            console.error(err);
         }
         res.redirect("/home");
     }
@@ -222,6 +244,63 @@ const postAddFolderController = [
     }
 ]
 
+const postEditFolderController = [
+    folderValidation,
+
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.render("home", {
+                errors: errors.array()
+            });
+        }
+
+        try {
+            const newName = req.body.folder_name;
+            const id = Number(req.params.id);
+            await prisma.folder.update({
+                where: { id, user_id: req.user.id },
+                data: {name: newName}
+            })
+        }catch(err) {
+            console.error(err);
+        }
+        res.redirect("/home");
+    }
+];
+
+const deleteFolderController = async (req, res, next) => {
+    try {
+        const id = Number(req.params.id);
+        await prisma.folder.delete({
+            where: {
+                id,
+                user_id: req.user.id
+            }
+        })
+        res.sendStatus(204);
+    }catch(err) {
+        console.error(err);
+        next(err);
+    }
+}
+
+const deleteFileController = async (req, res, next) => {
+    try {
+        const id = Number(req.params.id);
+        await prisma.file.delete({
+            where: {
+                id: id,
+                user_id: req.user.id
+            }
+        })
+        res.sendStatus(204);
+    }catch(err) {
+        console.error(err);
+        next(err);
+    }
+}
+
 
 export {
     getHomeController,
@@ -233,5 +312,8 @@ export {
     postLoginController,
     getLogoutController,
     postUploadFileController,
-    postAddFolderController
+    postAddFolderController,
+    postEditFolderController,
+    deleteFolderController,
+    deleteFileController
 }
