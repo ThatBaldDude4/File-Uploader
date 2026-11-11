@@ -3,3 +3,4 @@ node_modules
 /generated/prisma
 /utils/databaseUtils.js
 .todo
+client/uploads
