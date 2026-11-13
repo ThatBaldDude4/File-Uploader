@@ -36,6 +36,8 @@ model Folder {
 model File {
     id Int @id @default(autoincrement())
     name String
+    file_path String
+    original_name String
     folder Folder? @relation(fields: [folder_id], references: [id], onDelete: Cascade)
     folder_id Int?
 
