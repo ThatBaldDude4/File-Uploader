@@ -8,10 +8,11 @@
                 
                 <% if (folder?.files) { %>
                     <% folder.files.forEach((file) => { %>
-                        <div class="file-container" dataset-file-id="<%= file.id ?? '' %>">
-                            <h4 >File name: <%= file.name %></h4>
+                        <div class="file-container" data-file-id="<%= file.id ?? '' %>">
+                            <h4 >File name: <%= file.original_name %></h4>
                             <p>Created at: <%= file.created_at %></p>
                             <p>Size: <%= file.sizeByte / 1000 %>Kb</p>
+                            <a href="/home/files/download/<%= file.id %>" class="download-btn">Download</a>
                             <button class="delete-file-btn">Delete File</button>
                         </div>
                     <% }) %>   
