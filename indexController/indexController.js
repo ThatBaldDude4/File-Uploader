@@ -86,15 +86,17 @@ const folderValidation = [
 ]
 
 const getHomeController = async (req, res) => {
-    res.render("home", {user: req.user});
+    const loneFiles = await prisma.file.findMany({
+        where: {
+            user_id: req.user.id,
+            folder_id: null
+        }
+    })
+    res.render("home", {user: req.user, loneFiles});
 };
 
 const getFolderController = (req, res) => {
     res.render("folder");
-};
-
-const getFileController = (req, res) => {
-    res.render("filePage");
 };
 
 const getSignupController = (req, res) => {
@@ -208,7 +210,9 @@ const postUploadFileController = [
                     user_id: req.user.id,
                     name: file.filename,
                     sizeByte: file.size,
-                    folder_id: folderId
+                    folder_id: folderId,
+                    file_path: file.path,
+                    original_name: file.originalname
                 }
             })
             console.log(uploadedFile)
@@ -287,7 +291,7 @@ const deleteFolderController = async (req, res, next) => {
 
 const deleteFileController = async (req, res, next) => {
     try {
-        const id = Number(req.params.id);
+        const id = Number(req.params.id) ? Number(req.params.id) : null;
         await prisma.file.delete({
             where: {
                 id: id,
@@ -299,6 +303,70 @@ const deleteFileController = async (req, res, next) => {
         console.error(err);
         next(err);
     }
+}
+
+const getFileDetailsController = async (req, res, next) => {
+    const id = Number(req.params.id) ? Number(req.params.id) : null;
+    
+    try {
+        const file = await prisma.file.findUnique({
+            where: {
+                user_id: req.user.id,
+                id: id
+            },
+            select: {
+                id: true,
+                created_at: true,
+                sizeByte: true,
+                original_name: true,
+                folder_id
+            }
+        });
+        res.render("file-page", {file})
+    }catch(err) {
+        next(err);
+    }
+}
+
+
+// downloaded file doesn't show file type
+const downloadFileController = async (req, res) => {
+    const id = Number(req.params.id)
+    const file = await prisma.file.findUnique({
+        where: {
+            user_id: req.user.id,
+            id: id
+        },
+        select: {
+            file_path: true,
+            original_name: true
+        }
+    });
+
+    if (file) {
+        const absolutePath = path.resolve(file.file_path);
+        return res.download(absolutePath, file.original_name);
+    };
+    res.sendStatus(204);
+}
+
+const getFileController = async (req, res, next) => {
+    const id = Number(req.params.id)
+    console.log(id)
+    const file = await prisma.file.findUnique({
+        where: {
+            user_id: req.user.id,
+            id: id
+        },
+        select: {
+            id: true,
+            created_at: true,
+            sizeByte: true,
+            original_name: true
+        }
+    });
+
+    res.json(file);
 }
 
 
@@ -315,5 +383,7 @@ export {
     postAddFolderController,
     postEditFolderController,
     deleteFolderController,
-    deleteFileController
+    deleteFileController,
+    downloadFileController,
+    getFileDetailsController
 }
